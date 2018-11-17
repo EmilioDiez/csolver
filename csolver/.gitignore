@@ -3,3 +3,8 @@
 /bazel-helloworld/
 /bazel-out/
 /bazel-testlogs/
+/bazel-bin/
+/bazel-genfiles/
+/bazel-helloworld/
+/bazel-out/
+/bazel-testlogs/
