@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 1.7.0//EN" "http://google-web-toolkit.googlecode.com/svn/tags/1.7.0/distro-source/core/src/gwt-module.dtd">
+<module rename-to='csolver_core'>
+
+	<inherits name='com.google.gwt.core.Core' />
+
+	<inherits name='java.java_gwt' />
+	<inherits name='dk.dk' />
+	<inherits name='org.jgrapht' />
+  	<inherits name='nitoku.log'/>
+  
+	<source path='kernel' />
+	<source path='cp' />
+
+</module>
+

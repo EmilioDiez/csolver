@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='csolver_linker'>
+
+  
+  <!-- 
+  Inherit the core Web Toolkit stuff.
+  NOTE: To compile we need the User import, nevertheless use only core for the 
+  actual libraries                        
+  -->
+  <inherits name='com.google.gwt.user.User'/>
+
+  <inherits name="elemental2" />
+
+  <inherits name="nitoku.linker"/>
+  
+  <define-configuration-property name="nitoku.linker.file.name"
+    is-multi-valued="false" />
+    
+   <!-- the idea is to extend this to set the worker version -->
+  <set-configuration-property name="nitoku.linker.file.name" value="csolver"/>
+  
+  <add-linker name="workerlinker" />
+  
+  <inherits name='csolver.core' />
+  
+  <source path='client' />
+  
+</module>

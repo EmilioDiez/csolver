@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='choco_gwt_test'>
+
+  <!-- Inherit the core Web Toolkit stuff.                        -->
+  <inherits name='com.google.gwt.user.User'/>
+
+  <inherits name='nitoku.log'/>
+  
+  <inherits name="elemental2" />
+
+  <inherits name='csolver.core' />
+
+  <inherits name='csolver.csolverInterop' />
+  
+  <!-- Other module inherits                                      -->
+
+  <source path='client'/>
+	  
+</module>
