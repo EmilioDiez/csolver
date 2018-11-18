@@ -5,6 +5,7 @@
 	<!-- project properties -->
 	<property name="classes.dir" location="classes-bin" />
 
+	<property name="version" value="1.0.1" />
 		
 	<property name="gwt.args" value=" -generateJsInteropExports" />
 	<property name="gwt.compile.args" value= " -strict " />
@@ -44,11 +45,6 @@
 			</fileset>		
 	</path>
 
-	<!-- this folder include the jars that are nitoku original
-			- JDK simulation classes
-			- Automaton
-			- JGrapht
-	-->
 	<path id="third-party-libs.path">
 		<fileset dir="third-party-libs">
 				<include name="*.jar" />
@@ -83,7 +79,8 @@
 	
 	<!-- Configure path to csolver classes -->
 
-	<property name="nitoku.log" location="nitoku-log" />	
+	<property name="nitoku.log" location="nitoku-log" />
+	<property name="nitoku.linker" location="nitoku-linker" />
 	<property name="csolver.java" location="csolver-java-core" />
 	<property name="csolver.java.test" location="csolver-java-test" />
 	<property name="csolver.java.samples" location="csolver-java-samples" />
@@ -91,44 +88,30 @@
 	<property name="csolver.gwt.test" location="csolver-gwt-test" />
 	
 	<property name="nitoku.log.classes" location="${classes.dir}/nitoku-log" />
+	<property name="nitoku.linker.classes" location="${classes.dir}/nitoku-linker" />
 	<property name="csolver.java.classes" location="${classes.dir}/csolver-java-core" />
 	<property name="csolver.java.test.classes" location="${classes.dir}/csolver-java-test" />
 	<property name="csolver.java.samples.classes" location="${classes.dir}/csolver-java-samples" />
 	<property name="csolver.gwt.core.api.classes" location="${classes.dir}/csolver-elemental-export" />
 	<property name="csolver.gwt.test.classes" location="${classes.dir}/csolver-gwt-test" />
 	
-
 	<property name="ant.report.csolver.test" location="${classes.dir}/ant-report/{csolver.java.test}" />
-	
-	<target name="libs" description="Copy libs to WEB-INF/lib">
-		<mkdir dir="war/WEB-INF/lib" />
-		<copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />
-		<copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet-deps.jar" />
-		<copy todir="war/WEB-INF/lib" flatten="true">
-			<fileset dir="${appengine.sdk}/lib/user" includes="**/*.jar" />
-		</copy>
-	</target>
-
-	
+		
 	<target name="gwt-csolver-compile" description="GWT compile csolver to js (production mode)">
 		<java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler" maxmemory="512m">
 			<classpath>
 				
 				<pathelement location="${csolver.java}" />
-				
 				<pathelement location="${nitoku.log}" />
 				<pathelement location="${nitoku.log.classes}" />
 				<pathelement location="${csolver.gwt.core.api}" />
 				<pathelement location="${csolver.gwt.core.api.classes}" />
 				<path refid="gwt.class.path" />
-				<!-- for JRE simulation, automaton and jgrapht classes -->
 				<path refid="third-party-libs.path" />
-				<!-- nitoku.share dependencies -->
 				
 			</classpath>
 			<arg line="-war" />
 			<arg value="war" />
-			<!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
 			<arg line="${gwt.args}" />
 			<arg value="csolver.core" />
 		</java>
@@ -136,24 +119,24 @@
 
 
 
+	<path id="csolver.linker.class.path">
+
+		<path refid="gwt.class.path" />
+		<path refid="third-party-libs.path" />
+		<pathelement location="${nitoku.linker}" />
+		<pathelement location="${nitoku.linker.classes}" />
+		<pathelement location="${nitoku.log}" />
+		<pathelement location="${nitoku.log.classes}" />
+		<pathelement location="${csolver.java}" />
+		<pathelement location="${csolver.java.classes}" />
+		<pathelement location="${csolver.gwt.core.api}" />
+		<pathelement location="${csolver.gwt.core.api.classes}" />
+		
+	</path>
+
 	<target name="csolver-linker" depends="java-build" description="Create stand alone js files for csolver ">
 		
 		<mkdir dir="war/js" />
-			
-		<path id="csolver.linker.class.path">
-			
-			<pathelement location="${csolver.java}" />
-			<pathelement location="${csolver.gwt.core.api}" />
-			<pathelement location="${csolver.gwt.core.api.classes}" />
-
-			<path refid="gwt.class.path" />
-			<!-- for JRE simulation classes -->
-			<path refid="third-party-libs.path" />
-			
-			<pathelement location="${nitoku.log}" />
-			<pathelement location="${nitoku.linker.classes}" />
-			
-		</path>
 		
 		<java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler" maxmemory="512m">
 			<classpath>
@@ -165,13 +148,14 @@
 			<arg value="csolver.CSolverWorker" />
 		</java>
 		
-		<move todir="war/js" file="war/csolver_linker/csolver.${version}.js" />
+		<move todir="dist" file="war/csolver_linker/csolver.${version}.js" />
 		
 	</target>
 
 	<target name="java-clean" description="Cleans this project">
 		
 		<delete dir="${nitoku.log.classes}" failonerror="false" />
+		<delete dir="${nitoku.linker.classes}" failonerror="false" />
 		<delete dir="${csolver.java.classes}" failonerror="false" />
 		<delete dir="${csolver.java.test.classes}" failonerror="false" />
 		<delete dir="${csolver.java.samples.classes}" failonerror="false" />
@@ -268,6 +252,15 @@
 			</classpath>
 		</javac>
 		
+		<mkdir dir="${nitoku.linker.classes}" />
+		<javac srcdir="${nitoku.linker}" includes="**" encoding="utf-8" 
+			source="1.8" target="1.8" nowarn="true" 
+			destdir="${nitoku.linker.classes}" debug="true" debuglevel="lines,vars,source">
+			<classpath>
+				<path refid="gwt.class.path" />
+			</classpath>
+		</javac>
+		
 	</target>
 
 	<target name="java-create-jar" description="Create the jar for this project">
@@ -276,8 +269,8 @@
 		<antcall target="java-build" />
 	
 		<jar destfile="csolver-core-${version}.jar">
-			<fileset dir="${cp.classes}" />
-			<fileset dir="csolver-core" />
+			<fileset dir="${csolver.java.classes}" />
+			<fileset dir="${csolver.java}" />
 		</jar>
 		
 	</target>
@@ -325,73 +318,5 @@
 					
 	<target name="build" description="Do nothing">
 	</target>
-
-	<path id="gwt.csolver.app.path">
-		
-		<pathelement location="app" />
-		<path refid="gwt.class.path" />
-		<pathelement location="${gwt.sdk}/gwt-codeserver.jar" />
-	
-		<pathelement location="${csolver.java}" />
-		<pathelement location="${csolver.gwt.core.api}" />
-		<pathelement location="${nitoku.log}" />
-		
-		
-	</path>
-	
-	<target name="gwt-csolver-app-compile" description="GWT compile of the csolver app">
-		
-		<java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler" maxmemory="512m">
-			<classpath>
-				<path refid="gwt.csolver.app.path" />
-			</classpath>
-			<arg line="-war" />
-			<arg value="war" />
-			<!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
-			<arg line="${gwt.args}" />
-			<arg value="csolver.app.csolver" />
-		</java>
-		
-		<!-- copy the cp.js library to the root directory 
-		<copy todir="war" file="war/com.nitoku.cp.nclient/cp.js" />
-		-->
-		
-	</target>
-			
-	<target name="gwt-devmode" 
-		description="Run development mode (pass -Dgwt.args=-nosuperDevMode to fallback to classic DevMode)">
-		<java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode"
-			maxmemory="1g">
-			<classpath>
-				<path refid="gwt.csolver.app.path" />
-			</classpath>
-			<arg value="-startupUrl" />
-			<arg value="CSolverApp.html" />
-			<arg line="-war" />
-			<arg value="war" />
-			<!-- Additional arguments like -style PRETTY, -logLevel DEBUG or -nosuperDevMode -->
-			<arg line="${gwt.args}" />
-			<arg value="csolver.app.csolver" />
-		</java>
-	</target>
-	
-
-	<target name="util_sloc_count" description="Count number of lines">
-
-				<!-- TODO:delete the xml files created by ant reports first -->
-		
-		  <exec executable="sloccount">
-		  	
-		  	<env key="PATH" 
-		  		value="=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"/>
-		   
-		  	<env key="PWD" value="/home/emilio/workspace/csolver"/>
-		  	
-		  	<arg value="--wide"/>
-		  	<arg value="--multiproject"/>
-		  	<arg value="."/>
-		  </exec>
-	</target>
-
 
 </project>

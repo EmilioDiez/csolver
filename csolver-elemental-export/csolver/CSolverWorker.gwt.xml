@@ -23,6 +23,9 @@
   
   <inherits name='csolver.core' />
   
+  <!-- Specify the app entry point class. -->
+  <entry-point class='csolver.client.solver.WorkerMng' />
+	
   <source path='client' />
   
 </module>
